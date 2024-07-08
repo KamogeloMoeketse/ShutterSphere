@@ -2,6 +2,7 @@ import { useDeleteSavedPost, useGetCurrentUser, useLikePost, useSavePost } from 
 import { checkIsLiked } from "@/lib/utils";
 import { Models } from "appwrite";
 import React, { useState, useEffect } from "react";
+import Loader from "./Loader";
 
 type PostStatsProps = {
     post: Models.Document;
@@ -73,7 +74,7 @@ const PostStats = ({ post,userId}: PostStatsProps) => {
         </div>
 
         <div className="flex gap-2">
-            <img 
+            {isSavingPost || isDeletingSaved ? <Loader /> : <img 
                 src={isSaved ? 
                     "/assets/icons/saved.svg" :
                     "/assets/icons/save.svg"
@@ -83,7 +84,7 @@ const PostStats = ({ post,userId}: PostStatsProps) => {
                 height={20}
                 onClick={handleSavePost}
                 className="cursor-pointer"
-            />
+            />}
         </div>
     </div>
   )
