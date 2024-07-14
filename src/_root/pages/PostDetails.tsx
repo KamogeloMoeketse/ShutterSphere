@@ -1,4 +1,5 @@
 import Loader from "@/components/shared/Loader"
+import PostStats from "@/components/shared/PostStats"
 import { Button } from "@/components/ui/button"
 import { useUserContext } from "@/context/AuthContext"
 import { useGetPostById } from "@/lib/react-query/queriesAndMutations"
@@ -75,8 +76,10 @@ const PostDetails = () => {
                 ))}
               </ul>
             </div>
+            <div className="w-full">
+                <PostStats post ={post} userId={user.id} />
+            </div>
           </div>
-
         </div>
 
       )}

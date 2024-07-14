@@ -46,15 +46,15 @@ export async function saveUserToDB(user: {
             user,
         )
 
-    return newUser;
+        return newUser;
     } catch (error) {
         console.log(error)
     }
 }
 
-export async function signInAccount(user: {email : string; password : string}) {
+export async function signInAccount(user: { email: string; password: string }) {
     try {
-        const session =  await account.createEmailSession(user.email, user.password);
+        const session = await account.createEmailSession(user.email, user.password);
 
         return session;
     } catch (error) {
@@ -66,7 +66,7 @@ export async function getCurrentUser() {
     try {
         const currentAccount = await account.get();
 
-        if(!currentAccount) throw  Error;
+        if (!currentAccount) throw Error;
 
         const currentUser = await databases.listDocuments(
             appwriteConfig.databaseId,
@@ -86,13 +86,13 @@ export async function getCurrentUser() {
 
 export async function signOutAccount() {
     try {
-      const session = await account.deleteSession("current");
+        const session = await account.deleteSession("current");
 
-      return session;
+        return session;
     } catch (error) {
         console.log(error);
     }
-    
+
 }
 
 export async function createPost(post: INewPost) {
@@ -109,7 +109,7 @@ export async function createPost(post: INewPost) {
             throw Error;
         }
         // Convert tags into an array
-        const tags = post.tags?.replace(/ /g,'').split(',') || [];
+        const tags = post.tags?.replace(/ /g, '').split(',') || [];
 
         //Save new post to database
         const newPost = await databases.createDocument(
@@ -171,9 +171,9 @@ export function getFilePreview(fileId: string) {
 
 export async function deleteFile(fileId: string) {
     try {
-        await storage.deleteFile(appwriteConfig.storageId,fileId)
+        await storage.deleteFile(appwriteConfig.storageId, fileId)
 
-        return { status: 'okay'}
+        return { status: 'okay' }
     } catch (error) {
         console.log(error);
     }
@@ -240,7 +240,7 @@ export async function deleteSavedPost(savedRecordId: string) {
 
         if (!statusCode) throw Error;
 
-        return { status: 'ok!'};
+        return { status: 'ok!' };
     } catch (error) {
         console.log(error);
     }
@@ -276,18 +276,18 @@ export async function updatePost(post: IUpdatePost) {
             if (!uploadedFile) throw Error;
             // Get file url
             const fileUrl = getFilePreview(uploadedFile.$id);
-    
+
             if (!fileUrl) {
                 deleteFile(uploadedFile.$id);
                 throw Error;
             }
-            
-            image = {...image, imageUrl: fileUrl, imageId: uploadedFile.$id}
-        }    
+
+            image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id }
+        }
 
 
         // Convert tags into an array
-        const tags = post.tags?.replace(/ /g,'').split(',') || [];
+        const tags = post.tags?.replace(/ /g, '').split(',') || [];
 
         //Save new post to database
         const updatedPost = await databases.updateDocument(
@@ -323,7 +323,45 @@ export async function deletePost(postId: string, imageId: string) {
             postId
         )
 
-        return { status: 'ok'}
+        return { status: 'ok' }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
+    const queries: any[] = [Query.orderDesc('$updatedAt'), Query.limit(10)]
+
+    if (pageParam) {
+        queries.push(Query.cursorAfter(pageParam.toString()));
+    }
+
+    try {
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            queries
+        )
+
+        if (!posts) throw Error;
+
+        return posts;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function searchPosts(searchTerm: string) {
+    try {
+        const posts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.postCollectionId,
+            [Query.search('caption', searchTerm)]
+        )
+
+        if (!posts) throw Error;
+
+        return posts;
     } catch (error) {
         console.log(error);
     }
