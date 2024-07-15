@@ -1,5 +1,4 @@
 import { Client, Account, Databases, Storage, Avatars } from 'appwrite'
-import { Import } from 'lucide-react'
 
 export const appwriteConfig = {
     url: import.meta.env.VITE_APPWRITE_URL,

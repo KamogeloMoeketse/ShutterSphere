@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"
 import { useToast } from "@/components/ui/use-toast"
 import { SigninValidation } from "@/lib/validation"
-import { Loader } from "lucide-react"
+import Loader from "@/components/shared/Loader"
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations"
 import { useUserContext } from "@/context/AuthContext"
 

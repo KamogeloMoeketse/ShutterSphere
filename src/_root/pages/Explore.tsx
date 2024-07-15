@@ -1,16 +1,38 @@
 import GridPostList from '@/components/shared/GridPostList';
 import Loader from '@/components/shared/Loader';
-import SearchResults from '@/components/shared/SearchResults';
 import { Input } from '@/components/ui/input'
 import useDebounce from '@/hooks/useDebounce';
 import { useGetPosts, useSearchPosts } from '@/lib/react-query/queriesAndMutations';
-import React, { useState } from 'react'
+import { useInView } from 'react-intersection-observer';
+import { useState, useEffect } from 'react'
+
+export type SearchResultProps = {
+  isSearchFetching: boolean;
+  searchedPosts: any;
+};
+
+const SearchResults = ({ isSearchFetching, searchedPosts }: SearchResultProps) => {
+  if (isSearchFetching) {
+    return <Loader />;
+  } else if (searchedPosts && searchedPosts.documents.length > 0) {
+    return <GridPostList posts={searchedPosts.documents} />;
+  } else {
+    return (
+      <p className="text-light-4 mt-10 text-center w-full">No results found</p>
+    );
+  }
+};
 
 const Explore = () => {
+  const { ref, inView } = useInView();
   const { data: posts, fetchNextPage, hasNextPage } = useGetPosts();
   const [searchValue, setSearchValue] = useState('');
   const debouncedValue = useDebounce(searchValue, 500);
   const { data: searchedPosts, isFetching: isSearchFetching } = useSearchPosts(debouncedValue);
+
+  useEffect(() => {
+    if(inView && !searchValue) fetchNextPage();
+  },[inView, searchValue])
 
   if (!posts) {
     return (
@@ -53,7 +75,7 @@ const Explore = () => {
           />
         </div>
       </div>
-      <div className='flex flex-wrap gap-9 w-full max-w-full'>
+      <div className='flex flex-wrap gap-9 w-full max-w-5xl'>
         {shouldShowSearchResults ? (
           <SearchResults
             isSearchFetching={isSearchFetching}
@@ -63,8 +85,7 @@ const Explore = () => {
            <p className='text-light-4 mt-10 text-center w-full'>End of Posts</p>
         ) : 
           posts.pages.map((item, index) => (
-            <GridPostList key={`page-${index}`}
-            posts={item.documents} />
+            <GridPostList key={`page-${index}`} posts={item?.documents} />
           ))}
       </div>
 
